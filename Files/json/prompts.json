@@ -1,0 +1,28 @@
+{
+    "prompts":[
+        {
+            "prompt": "Whats your full name?",
+            "promptId": "Name"
+        },
+        {
+            "prompt": "How long have you known the company?",
+            "promptId": "Company Knowledge"
+        },
+        {
+            "prompt": "Whats your desired salary?",
+            "promptId": "Desired Salary"
+        },
+        {
+            "prompt": "Whats your ID number?",
+            "promptId": "ID Number"
+        },
+        {
+            "prompt": "Whats position would you like in the company?",
+            "promptId": "Desired Position"
+        },
+        {
+            "prompt": "Whats your favourite dessert?",
+            "promptId": "Dessert"
+        }
+    ]
+}
