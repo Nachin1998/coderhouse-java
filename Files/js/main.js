@@ -1,12 +1,7 @@
 'use strict';
 
-import {
-    Employee
-} from './Employee.js';
-
-import {
-    InterviewPrompt
-} from './InterviewPrompt.js';
+import { Employee } from './Employee.js';
+import { InterviewPrompt } from './InterviewPrompt.js';
 
 async function LoadPrompts() {
     const response = await fetch("./json/prompts.json");
@@ -44,7 +39,7 @@ async function LoadEmployees() {
     return employees;
 }
 
-function CheckForNameSimilarities(currentEmployees, prompts){
+function CheckForNameSimilarities(currentEmployees, prompts) {
     for (const employee of currentEmployees) {
         for (const promptItem of prompts) {
             if (employee.name === promptItem.response) {
@@ -85,15 +80,10 @@ function GreetClient() {
     }
 }
 
-function IsEmployee(){
+function IsEmployee() {
     const acceptedJobKey = "acceptedJob";
     const isEmployee = localStorage.getItem(acceptedJobKey);
-
     return isEmployee;
-}
-
-function DoesClientWantToApply(){
-    return confirm("Would you like to apply for the position?");
 }
 
 function HireClient(clientName, currentEmployees) {
@@ -125,7 +115,7 @@ async function HandleMainFlow(){
     
     GenerateFinalMessage(prompts);
     
-    if (DoesClientWantToApply())
+    if (true) ///does client want to apply
     {
         const info = HireClient(namePrompt.response, currentEmployees);
         alert(info);
@@ -138,29 +128,21 @@ async function HandleMainFlow(){
 
 GreetClient();
 
-if (IsEmployee())
-{
-    alert("Glad you are enjoying you time at the job!");
-}
-else
-{
-    HandleMainFlow();
-}
+const applyForJobButton = document.getElementById("job-apply-button");
 
-const text = document.getElementsByClassName("header-text");
+applyForJobButton.addEventListener("click", (eventData) => {
+    if (IsEmployee())
+    {
+        alert("You are already an employee.");
+    }
+    else
+    {
+        HandleMainFlow();
+    }
+});
 
-for (let i = 0; i < text.length; i++) {
-    const element = text[i];
-    element.addEventListener("click", (eventData) => {
-        alert("You have been cursed by the 'i dont know what button to use this event on' curse. All your data has been erased.");
-        localStorage.clear();
-    });
+const clearCacheButton = document.getElementById("clear-cache-button");
 
-    element.addEventListener("mouseover", (eventData) => {
-        console.log(element.text + " down");
-    });
-
-    element.addEventListener("mouseout", (eventData) => {
-        console.log(element.text + " out");
-    });
-}
+clearCacheButton.addEventListener("click", (eventData) => {
+    localStorage.clear();
+});
