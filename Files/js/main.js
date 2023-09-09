@@ -2,15 +2,11 @@
 
 import { Employee } from './Employee.js';
 import { InterviewPrompt } from './InterviewPrompt.js';
+import { LoadJson } from './utils/JsonUtils.js';
+import { CreateButton } from './utils/HTMLUtils.js';
 
 async function LoadPrompts() {
-    const response = await fetch("./json/prompts.json");
-    if (!response.ok) {
-        console.error("Failed to load prompts");
-        return null;
-    }
-    
-    const data = await response.json();
+    const data = await LoadJson("./json/prompts.json");
 
     const prompts = new Array();
     for (let index = 0; index < data.prompts.length; index++) {
@@ -22,13 +18,7 @@ async function LoadPrompts() {
 }
 
 async function LoadEmployees() {
-    const response = await fetch("./json/employees.json");
-    if (!response.ok) {
-        console.error("Failed to load employees");
-        return null;
-    }
-
-    const data = await response.json();
+    const data = await LoadJson("./json/employees.json");
 
     const employees = new Array();
     for (let index = 0; index < data.employees.length; index++) {
@@ -37,18 +27,6 @@ async function LoadEmployees() {
     }
 
     return employees;
-}
-
-function CheckForNameSimilarities(currentEmployees, prompts) {
-    for (const employee of currentEmployees) {
-        for (const promptItem of prompts) {
-            if (employee.name === promptItem.response) {
-                return true;
-            }
-        }
-    }
-
-    return false;
 }
 
 function GenerateFinalMessage(prompts) {
@@ -61,34 +39,18 @@ function GenerateFinalMessage(prompts) {
     });
 
     information += endLine;
-    information += "Thank you!";
-    alert(information);
-}
-
-function GreetClient() {
-    const userKey = "user";
-
-    const user = localStorage.getItem(userKey);
-
-    if (user != null) {
-        alert("welcome back " + user + "!");
-    }
-    else {
-        const name = prompt("Please input your nickname.");
-        localStorage.setItem(userKey, name);
-        alert("welcome " + name + "!");
-    }
+    return information
 }
 
 function IsEmployee() {
-    const acceptedJobKey = "acceptedJob";
-    const isEmployee = localStorage.getItem(acceptedJobKey);
+    const isEmployeeKey = "isEmployee";
+    const isEmployee = localStorage.getItem(isEmployeeKey);
     return isEmployee;
 }
 
 function HireClient(clientName, currentEmployees) {
-    const acceptedJobKey = "acceptedJob";
-    localStorage.setItem(acceptedJobKey, true);
+    const isEmployeeKey = "isEmployee";
+    localStorage.setItem(isEmployeeKey, true);
 
     let info = "Great! You are now part of the team! \n";
 
@@ -100,44 +62,64 @@ function HireClient(clientName, currentEmployees) {
     return info;
 }
 
-async function HandleMainFlow(){
+function HandleQuestions(prompts, startingIndex, onfinalQuestionAsked) {
+
+    let index = startingIndex;
+    const prompt = prompts[index];
+
+    prompt.CreateHTMLQuestionPrompt((value) => {
+        prompt.SetResponse(value);
+        prompt.ToggleButtonInteraction(false);
+
+        index++;
+        if (index < prompts.length) {
+            HandleQuestions(prompts, index, onfinalQuestionAsked);
+        }
+        if (index === prompts.length) {
+            onfinalQuestionAsked();
+        }
+    });
+}
+
+async function ApplyForJob() {
     const currentEmployees = await LoadEmployees();
     const prompts = await LoadPrompts();
     const namePrompt = prompts[0];
     
-    prompts.forEach(element => {
-        element.SetResponse(prompt(element.prompt));
-    })
-
-    if (CheckForNameSimilarities(currentEmployees, prompts)) {
-        alert("What a coincidence, we got someone working with your name already!");
-    }
-    
-    GenerateFinalMessage(prompts);
-    
-    if (true) ///does client want to apply
-    {
-        const info = HireClient(namePrompt.response, currentEmployees);
-        alert(info);
-    }
-    else
-    {
-        alert("What a shame. Feel free to contact us if you change your mind!");
-    }
+    HandleQuestions(prompts, 0, () => TriggerGetJobButton(namePrompt.response, currentEmployees));
 }
 
-GreetClient();
+function TriggerGetJobButton(name, currentEmployees){
+    const button = CreateButton("Get job!", () => {
+        ClearInterviewRelatedElements();
+        HireClient(name, currentEmployees);
+    }, true);
+    button.id = "get-job-button";
+}
+
+function ClearInterviewRelatedElements(){
+    const elements = document.getElementsByClassName("question");
+    const copyOfElements = Array.from(elements);
+    for (let index = 0; index < copyOfElements.length; index++) {
+        const element = copyOfElements[index];
+        element.remove();
+    }
+
+    const getJobButton = document.getElementById("get-job-button");
+    getJobButton.remove();
+}
 
 const applyForJobButton = document.getElementById("job-apply-button");
-
 applyForJobButton.addEventListener("click", (eventData) => {
+    applyForJobButton.disabled = true;
+
     if (IsEmployee())
     {
         alert("You are already an employee.");
     }
     else
     {
-        HandleMainFlow();
+        ApplyForJob();
     }
 });
 
