@@ -12,6 +12,6 @@ export class CommonLocalStorage{
 
     static Clear(){
         localStorage.clear();
-        Swal.fire("Cache is clear!", "", "success")
+        Swal.fire("Cache is clear!", "", "success");
     }
 }
