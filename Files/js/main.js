@@ -5,6 +5,8 @@ import { InterviewPrompt } from './InterviewPrompt.js';
 import { LoadJson } from './utils/JsonUtils.js';
 import { CreateButton } from './utils/HTMLUtils.js';
 
+const endLine = "\n";
+
 async function LoadPrompts() {
     const data = await LoadJson("./json/prompts.json");
 
@@ -30,12 +32,10 @@ async function LoadEmployees() {
 }
 
 function GenerateFinalMessage(prompts) {
-    const endLine = "\n";
     let information = "Information:" + endLine;
 
     prompts.forEach(prompt => {
-        information += prompt.GetInformationText();
-        information += endLine;
+        information += prompt.GetInformationText() + endLine;
     });
 
     information += endLine;
@@ -52,14 +52,12 @@ function HireClient(clientName, currentEmployees) {
     const isEmployeeKey = "isEmployee";
     localStorage.setItem(isEmployeeKey, true);
 
-    let info = "Great! You are now part of the team! \n";
-
     currentEmployees.unshift(new Employee(clientName, "Junior IT Employee"));
     currentEmployees.forEach(employee => {
-        info += employee.GetJobInformation();
+        employee.CreateHTMLEmployeeDisplay();
     });
 
-    return info;
+    alert("Great! You are now part of the team!");
 }
 
 function HandleQuestions(prompts, startingIndex, onfinalQuestionAsked) {
@@ -98,13 +96,7 @@ function TriggerGetJobButton(name, currentEmployees){
 }
 
 function ClearInterviewRelatedElements(){
-    const elements = document.getElementsByClassName("question");
-    const copyOfElements = Array.from(elements);
-    for (let index = 0; index < copyOfElements.length; index++) {
-        const element = copyOfElements[index];
-        element.remove();
-    }
-
+    InterviewPrompt.ClearActiveQuestionPrompts();
     const getJobButton = document.getElementById("get-job-button");
     getJobButton.remove();
 }
@@ -113,13 +105,13 @@ const applyForJobButton = document.getElementById("job-apply-button");
 applyForJobButton.addEventListener("click", (eventData) => {
     applyForJobButton.disabled = true;
 
-    if (IsEmployee())
+    if (!IsEmployee())
     {
-        alert("You are already an employee.");
+        ApplyForJob();
     }
     else
     {
-        ApplyForJob();
+        alert("You are already an employee.");
     }
 });
 
@@ -127,4 +119,7 @@ const clearCacheButton = document.getElementById("clear-cache-button");
 
 clearCacheButton.addEventListener("click", (eventData) => {
     localStorage.clear();
+    applyForJobButton.disabled = false;
+    Employee.ClearEmployeeDisplays();
+    InterviewPrompt.ClearActiveQuestionPrompts();
 });

@@ -8,6 +8,17 @@
     gap: 10px;
 }
 
+.employee-display{
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.employee-display p {
+    margin: 0px;
+}
+
 #clear-cache-button{
     background-color: red;
 }

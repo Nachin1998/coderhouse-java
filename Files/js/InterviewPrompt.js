@@ -37,7 +37,6 @@ export class InterviewPrompt{
         input.id = "inputElement";
     
         const button = CreateButton("Submit", () => { 
-            console.log(input.value.length);
             if (input.value.length !== 0) {
                 onSubmit(input.value);
             }
@@ -50,5 +49,14 @@ export class InterviewPrompt{
         containerDiv.appendChild(button);
     
         document.body.appendChild(containerDiv);
+    }
+
+    static ClearActiveQuestionPrompts(){
+        const elements = document.getElementsByClassName("question");
+        const copyOfElements = Array.from(elements);
+        for (let index = 0; index < copyOfElements.length; index++) {
+            const element = copyOfElements[index];
+            element.remove();
+        }
     }
 }
