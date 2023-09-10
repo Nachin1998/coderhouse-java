@@ -8,12 +8,13 @@ import { CommonLocalStorage } from './utils/CommonLocalStorage.js';
 function HireClient(clientName, currentEmployees) {
     CommonLocalStorage.SetIsEmployee(true);
 
+    const label = document.createElement("label");
+    label.textContent = "FireStudios gang:";
+    document.body.appendChild(label);
     currentEmployees.unshift(new Employee(clientName, "Junior IT Employee"));
     currentEmployees.forEach(employee => {
         employee.CreateHTMLEmployeeDisplay();
-    });
-
-    alert("Great! You are now part of the team!");
+    });    
 }
 
 function HandleQuestions(prompts, startingIndex, onfinalQuestionAsked) {
@@ -45,8 +46,21 @@ async function ApplyForJob() {
 
 function TriggerGetJobButton(name, currentEmployees){
     const button = CreateButton("Get job!", () => {
-        ClearInterviewRelatedElements();
-        HireClient(name, currentEmployees);
+        Swal.fire({
+            title: "Do you want to get the job?",
+            showDenyButton: true,
+            confirmButtonText: "Yes!",
+            denyButtonText: "Had second thoughts...",
+          }).then((result) => {
+            if (result.isConfirmed) {
+                ClearInterviewRelatedElements();
+                HireClient(name, currentEmployees);
+              Swal.fire("Great!", "You are now part of the team!", "success")
+            } else if (result.isDenied) {
+              Swal.fire("No problem, you'll come around!", "", "info")
+            }
+          })
+        
     }, true);
     button.id = "get-job-button";
 }
@@ -67,7 +81,13 @@ applyForJobButton.addEventListener("click", (eventData) => {
     }
     else
     {
-        alert("You are already an employee.");
+        Swal.fire({
+            title: "You are already an employee.",
+            icon: "warning",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Okay"
+          });
     }
 });
 
