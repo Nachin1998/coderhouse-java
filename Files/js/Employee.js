@@ -1,3 +1,5 @@
+import { LoadJson } from './utils/JsonUtils.js';
+
 export class Employee{
     constructor(name, currentJob) {
         this.name = name;
@@ -27,5 +29,17 @@ export class Employee{
             const element = copyOfElements[index];
             element.remove();
         }
+    }
+
+    static async LoadEmployees() {
+        const data = await LoadJson("./json/employees.json");
+    
+        const employees = new Array();
+        for (let index = 0; index < data.employees.length; index++) {
+            const element = data.employees[index];
+            employees.push(new Employee(element.name, element.currentJob));
+        }
+    
+        return employees;
     }
 }

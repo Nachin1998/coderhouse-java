@@ -2,55 +2,11 @@
 
 import { Employee } from './Employee.js';
 import { InterviewPrompt } from './InterviewPrompt.js';
-import { LoadJson } from './utils/JsonUtils.js';
 import { CreateButton } from './utils/HTMLUtils.js';
-
-const endLine = "\n";
-
-async function LoadPrompts() {
-    const data = await LoadJson("./json/prompts.json");
-
-    const prompts = new Array();
-    for (let index = 0; index < data.prompts.length; index++) {
-        const element = data.prompts[index];
-        prompts.push(new InterviewPrompt(element.prompt, element.promptId));
-    }
-
-    return prompts;
-}
-
-async function LoadEmployees() {
-    const data = await LoadJson("./json/employees.json");
-
-    const employees = new Array();
-    for (let index = 0; index < data.employees.length; index++) {
-        const element = data.employees[index];
-        employees.push(new Employee(element.name, element.currentJob));
-    }
-
-    return employees;
-}
-
-function GenerateFinalMessage(prompts) {
-    let information = "Information:" + endLine;
-
-    prompts.forEach(prompt => {
-        information += prompt.GetInformationText() + endLine;
-    });
-
-    information += endLine;
-    return information
-}
-
-function IsEmployee() {
-    const isEmployeeKey = "isEmployee";
-    const isEmployee = localStorage.getItem(isEmployeeKey);
-    return isEmployee;
-}
+import { CommonLocalStorage } from './utils/CommonLocalStorage.js';
 
 function HireClient(clientName, currentEmployees) {
-    const isEmployeeKey = "isEmployee";
-    localStorage.setItem(isEmployeeKey, true);
+    CommonLocalStorage.SetIsEmployee(true);
 
     currentEmployees.unshift(new Employee(clientName, "Junior IT Employee"));
     currentEmployees.forEach(employee => {
@@ -80,8 +36,8 @@ function HandleQuestions(prompts, startingIndex, onfinalQuestionAsked) {
 }
 
 async function ApplyForJob() {
-    const currentEmployees = await LoadEmployees();
-    const prompts = await LoadPrompts();
+    const currentEmployees = await Employee.LoadEmployees();
+    const prompts = await InterviewPrompt.LoadPrompts();
     const namePrompt = prompts[0];
     
     HandleQuestions(prompts, 0, () => TriggerGetJobButton(namePrompt.response, currentEmployees));
@@ -105,7 +61,7 @@ const applyForJobButton = document.getElementById("job-apply-button");
 applyForJobButton.addEventListener("click", (eventData) => {
     applyForJobButton.disabled = true;
 
-    if (!IsEmployee())
+    if (!CommonLocalStorage.GetIsEmployee())
     {
         ApplyForJob();
     }
@@ -116,9 +72,8 @@ applyForJobButton.addEventListener("click", (eventData) => {
 });
 
 const clearCacheButton = document.getElementById("clear-cache-button");
-
 clearCacheButton.addEventListener("click", (eventData) => {
-    localStorage.clear();
+    CommonLocalStorage.Clear();
     applyForJobButton.disabled = false;
     Employee.ClearEmployeeDisplays();
     InterviewPrompt.ClearActiveQuestionPrompts();

@@ -1,4 +1,5 @@
 import { CreateButton } from './utils/HTMLUtils.js';
+import { LoadJson } from './utils/JsonUtils.js';
 
 export class InterviewPrompt{
     constructor(prompt, promptId) {
@@ -58,5 +59,17 @@ export class InterviewPrompt{
             const element = copyOfElements[index];
             element.remove();
         }
+    }
+
+    static async LoadPrompts() {
+        const data = await LoadJson("./json/prompts.json");
+    
+        const prompts = new Array();
+        for (let index = 0; index < data.prompts.length; index++) {
+            const element = data.prompts[index];
+            prompts.push(new InterviewPrompt(element.prompt, element.promptId));
+        }
+    
+        return prompts;
     }
 }
